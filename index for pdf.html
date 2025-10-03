@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-signin-client_id" content="691246644506-gb7sngoqv0ml6i1kvqnf3vebuofi57uq.apps.googleusercontent.com.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Handwriting Converter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Indie+Flower&family=Kalam:wght@300;400;700&family=Satisfy&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div class="container">
+        <header>
+            <h1>Convert Text to Handwriting</h1>
+            <p>Transform your digital text into realistic human handwriting</p>
+        </header>
+
+        <main>
+            <div class="controls">
+                <div class="input-tabs">
+                    <button class="tab-btn active" data-tab="text-tab">Text Input</button>
+                    <button class="tab-btn" data-tab="pdf-tab">PDF Input</button>
+                </div>
+                
+                <div class="tab-content" id="text-tab">
+                    <div class="input-group">
+                        <label for="text-input">Enter your text:</label>
+                        <textarea id="text-input" placeholder="Type or paste your text here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="tab-content hidden" id="pdf-tab">
+                    <div class="input-group">
+                        <label for="pdf-input">Upload PDF:</label>
+                        <input type="file" id="pdf-input" accept=".pdf" />
+                        <div class="pdf-preview-container">
+                            <div id="pdf-preview">PDF preview will appear here</div>
+                            <div id="pdf-pages"></div>
+                        </div>
+                        <div class="pdf-controls">
+                            <button id="extract-text-btn" disabled>Extract Text from PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings">
+                    <div class="setting-group">
+                        <label for="font-select">Handwriting Style:</label>
+                        <select id="font-select">
+                            <option value="Caveat">Casual Handwriting</option>
+                            <option value="Dancing Script">Elegant Script</option>
+                            <option value="Indie Flower">Fun & Playful</option>
+                            <option value="Kalam">Neat Print</option>
+                            <option value="Satisfy">Flowing Cursive</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="size-slider">Size:</label>
+                        <input type="range" id="size-slider" min="16" max="32" value="22">
+                        <span id="size-value">22px</span>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="ink-color">Ink Color:</label>
+                        <input type="color" id="ink-color" value="#000000">
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="randomness-slider">Randomness:</label>
+                        <input type="range" id="randomness-slider" min="0" max="10" value="5">
+                        <span id="randomness-value">Medium</span>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="paper-select">Paper Background:</label>
+                        <select id="paper-select">
+                            <option value="white">White</option>
+                            <option value="lined">Lined</option>
+                            <option value="grid">Grid</option>
+                            <option value="yellow">Yellow Notepad</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group" id="color-sections-group">
+                        <label>Color Sections:</label>
+                        <div id="color-sections-container">
+                            <!-- Section inputs will be added here dynamically by JavaScript -->
+                        </div>
+                        <button id="add-section-btn" class="btn-secondary">Add Text Section</button>
+                    </div>
+                </div>
+
+                <button id="convert-btn">Convert to Handwriting</button>
+            </div>
+
+            <div class="output-container">
+                <div class="paper" id="output-paper">
+                    <div id="handwriting-output" class="handwriting-text">Your handwritten text will appear here...</div>
+                </div>
+                <div class="output-controls">
+                    <button id="download-btn">Download as Image</button>
+                    <button id="download-pdf-btn">Download as PDF</button>
+                    <button id="copy-btn">Copy Text</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Created with ❤️ | <a href="#about" id="about-link">About this tool</a></p>
+        </footer>
+
+        <div id="about-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>About This Tool</h2>
+                <p>This tool converts digital text into realistic-looking handwriting using various handwriting fonts and randomization effects to simulate natural human writing variations.</p>
+                <p>You can input text directly or extract text from PDF files, and then download your handwritten output as an image or PDF.</p>
+                <p>Note: The handwriting styles are simulations and not actual handwritten text. For educational or creative purposes only.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
+    
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="script.js"></script>
+    <script>
+        function onSignIn(googleUser) {
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId()); // Do not send to your backend!
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+            // Example: Display user info
+            document.body.innerHTML = '<h1>Welcome, ' + profile.getName() + '!</h1><img src="' + profile.getImageUrl() + '"> <button onclick="signOut()">Sign out</button>';
+        }
+
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+                console.log('User signed out.');
+                location.reload(); // Reload the page after sign out
+            });
+        }
+    </script>
+</body>
+</html> 
